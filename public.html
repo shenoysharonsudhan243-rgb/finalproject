@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Request Public Module (Alpha MVP)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS for the updated DARK MODE theme */
+        :root {
+            /* Color Palette for Dark Mode */
+            --primary-color: #00bcd4; /* Cyan/Teal - Modern and bright */
+            --secondary-color: #90a4ae; /* Blue-Grey - Muted secondary */
+            --success-color: #4caf50; /* Green */
+            --warning-color: #ff9800; /* Orange */
+            --danger-color: #f44336; /* Red */
+            --light-bg: #1e1e1e; /* Main dark background */
+            --container-bg: #2d2d30; /* Lighter dark container background */
+            --text-color: #f5f5f5; /* Light text */
+            --input-bg: #3c3c3c; /* Dark input background */
+            --input-border: #555;
+            --font-family: 'Poppins', sans-serif; /* New modern font */
+        }
+
+        body {
+            font-family: var(--font-family);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            transition: background-color 0.5s ease; /* Subtle animation for theme switch (if implemented) */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px; /* Slightly more rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Stronger, darker shadow */
+            border: 1px solid #3c3c3c;
+        }
+
+        /* NEW STYLE FOR HEADER CONTROLS */
+        .header-controls {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 0 10px 0;
+            text-align: right;
+        }
+
+        .login-btn {
+            background-color: var(--secondary-color);
+            color: var(--light-bg); /* Darker text on button */
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px; /* Pill shape for modern look */
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Animation */
+        }
+
+        .login-btn:hover {
+            background-color: #78909c;
+            transform: translateY(-2px); /* Lift effect */
+        }
+        /* END NEW STYLE */
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 600; /* Medium bold */
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 400; /* Regular weight */
+            color: var(--secondary-color);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="datetime-local"],
+        .form-group input[type="date"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px; /* Slightly more padding */
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* Focus state animation */
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(0, 188, 212, 0.5);
+            outline: none;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--light-bg); /* Dark text on primary button */
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background-color: #00a0b2;
+            transform: translateY(-1px); /* Subtle lift on hover */
+        }
+        
+        /* Marquee Styling */
+        .promo-marquee {
+            background-color: var(--primary-color);
+            color: var(--light-bg);
+            padding: 8px 0;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+        
+        .promo-marquee marquee {
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* Status Tracking Styling */
+        #tracking-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            background-color: var(--input-bg);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: var(--light-bg);
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending { background-color: var(--warning-color); }
+        .status-approved { background-color: var(--success-color); }
+        .status-rejected { background-color: var(--danger-color); }
+        .status-cancelled { background-color: var(--secondary-color); }
+
+        .status-detail {
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px dashed #555;
+            border-radius: 8px;
+            background-color: #38383a; /* Slightly different background for detail */
+        }
+
+        .status-detail strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Success Message Styling */
+        #booking-form-section p[style*="background: #e9f7ef"] {
+            background: #103c15 !important;
+            color: var(--success-color) !important;
+            border: 1px solid #1a551f !important;
+            padding: 20px !important;
+            border-radius: 8px !important;
+            font-weight: 600;
+        }
+        #booking-form-section strong {
+            color: #fff;
+            font-size: 1.1em;
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .btn {
+                width: 100%;
+            }
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="header-controls">
+        <a href="staff.html" class="login-btn">🧑‍💼 Staff Login</a>
+    </div>
+    
+    <div class="promo-marquee">
+        <marquee behavior="scroll" direction="left" scrollamount="6">
+            ✨ Alpha MVP is live! Request your resources now. Limited slots available for premium equipment! ✨
+        </marquee>
+    </div>
+    <div class="container">
+        <h1>External Booking Request Module</h1>
+
+        <section id="booking-form-section">
+            <h2>1. Submit a Booking Request</h2>
+            <form id="booking-form">
+                <div class="form-group">
+                    <label for="name">Your Name *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email * (for notifications)</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone (Optional)</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+
+                <div class="form-group">
+                    <label for="date_range">Booking Date/Time or Date Range *</label>
+                    <input type="text" id="date_range" name="date_range" placeholder="e.g., 2026-01-15 10:00-12:00 or 2026-02-01 to 2026-02-03" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="resource">Resource Selection *</label>
+                    <select id="resource" name="resource" required>
+                        <option value="">-- Select a Resource --</option>
+                        <option value="room-a">Meeting Room A</option>
+                        <option value="lab-1">Lab Equipment 1</option>
+                        <option value="vehicle-2">Company Vehicle 2</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose">Purpose/Details *</label>
+                    <textarea id="purpose" name="purpose" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="attachments">File Attachments (Optional)</label>
+                    <input type="file" id="attachments" name="attachments">
+                </div>
+
+                <div class="form-group">
+                    <label for="captcha">Security Check: What is 5 + 3? *</label>
+                    <input type="text" id="captcha" name="captcha" required>
+                </div>
+
+                <button type="submit" class="btn">Submit Booking Request</button>
+            </form>
+        </section>
+
+        <hr style="margin: 30px 0; border-color: #3c3c3c;">
+
+        <section id="tracking-input-section">
+            <h2>2. Track My Request Status</h2>
+            <p>Enter the tokenized link or tracking ID sent to your email after submission.</p>
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <input type="text" id="tracking-id" placeholder="Enter Tracking ID/Token" style="flex-grow: 1;">
+                <button type="button" class="btn" onclick="window.trackStatus()">Track Status</button>
+            </div>
+        </section>
+
+        <div id="tracking-section">
+            <h3>Request Status: <span id="display-status" class="status-badge status-pending">Pending</span></h3>
+
+            <div class="status-detail">
+                <strong>Booking Details:</strong>
+                <p>Name: <span id="track-name"></span></p>
+                <p>Resource: <span id="track-resource"></span></p>
+                <p>Requested Time: <span id="track-time"></span></p>
+            </div>
+
+            <div id="staff-comments" class="status-detail" style="display: none;">
+                <strong>Staff Comments:</strong>
+                <p id="track-comments"></p>
+            </div>
+            
+            <p style="margin-top: 20px; font-style: italic; color: #aaa;">*You will receive an email notification when the status changes. (Feature 3.4)</p>
+        </div>
+
+    </div>
+
+
+    <script type="module">
+        // Import Firebase modules for client-side database access (v9 Modular)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        // **1. IMPORTANT: Replace with your actual Firebase config**
+        const firebaseConfig = {
+            apiKey: "AIzaSyDx31Wm6tuwoPtXnJWFw6x4w8qP1vnWNso",
+            authDomain: "public-32876.firebaseapp.com",
+            projectId: "public-32876",
+            storageBucket: "public-32876.firebasestorage.app",
+            messagingSenderId: "780226452240",
+            appId: "1:780226452240:web:eb54f894888885128be395"
+
+        };
+
+        // Initialize Firebase and Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- 2. Create Operation (Form Submission) ---
+        async function submitBooking(event) {
+            event.preventDefault(); // Prevents the page reload
+
+            // Captcha check
+            const captchaInput = document.getElementById('captcha').value.trim();
+            if (captchaInput !== '8') {
+                alert('Security Check failed. Please try again.');
+                return;
+            }
+
+            // Collect form data
+            const bookingData = {
+                requesterName: document.getElementById('name').value.trim(),
+                requesterEmail: document.getElementById('email').value.trim(),
+                requesterPhone: document.getElementById('phone').value.trim(),
+                dateRange: document.getElementById('date_range').value.trim(),
+                resource: document.getElementById('resource').value,
+                purpose: document.getElementById('purpose').value.trim(),
+                // Initial status for all new requests
+                status: 'Pending', 
+                staffComments: '',
+                submittedAt: Timestamp.now()
+            };
+
+            // Basic validation check (for the required fields)
+            if (bookingData.requesterName === '' || bookingData.requesterEmail === '' || bookingData.dateRange === '' || bookingData.resource === '' || bookingData.purpose === '') {
+                alert('Please fill out all required fields.');
+                return;
+            }
+
+            try {
+                // Save data to Firestore (C - Create)
+                const docRef = await addDoc(collection(db, "bookings"), bookingData);
+                
+                // Update UI with the new Document ID (Tracking ID)
+                const bookingFormSection = document.getElementById('booking-form-section');
+                bookingFormSection.innerHTML = 
+                    `<p style="padding: 15px; background: #e9f7ef; border: 1px solid #d4edda; border-radius: 4px;">
+                        ✅ Booking submitted successfully! Your tracking ID is: 
+                        <strong>${docRef.id}</strong>. Keep this safe!
+                    </p>`;
+                
+                document.getElementById('booking-form').reset();
+                
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("An error occurred during submission. Please try again. Check the console for details.");
+            }
+        }
+        
+        // --- 3. Read Operation (Status Tracking) ---
+        async function trackStatus() {
+            const trackingId = document.getElementById('tracking-id').value.trim();
+            const trackingSection = document.getElementById('tracking-section');
+            const displayStatus = document.getElementById('display-status');
+            const staffCommentsDiv = document.getElementById('staff-comments');
+            const trackComments = document.getElementById('track-comments');
+
+            // Hide previous results
+            trackingSection.style.display = 'none';
+            staffCommentsDiv.style.display = 'none';
+
+            if (!trackingId) {
+                alert('Please enter a Tracking ID.');
+                return;
+            }
+
+            try {
+                // Fetch data from Firestore (R - Read)
+                const docRef = doc(db, "bookings", trackingId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const booking = docSnap.data();
+
+                    // Display real status and comments
+                    const status = booking.status || 'Pending'; 
+                    const comments = booking.staffComments || 'No comments from staff yet.';
+                    
+                    // Update main status badge
+                    displayStatus.textContent = status;
+                    // Note: Your existing CSS styles handle the class assignment (e.g., status-approved)
+                    displayStatus.className = 'status-badge status-' + status.toLowerCase(); 
+
+                    // Update booking details section
+                    document.getElementById('track-name').textContent = booking.requesterName;
+                    document.getElementById('track-resource').textContent = booking.resource;
+                    document.getElementById('track-time').textContent = booking.dateRange;
+
+                    // Update staff comments
+                    trackComments.textContent = comments;
+                    // Only show staff comments if there are any
+                    if (comments !== 'No comments from staff yet.') {
+                        staffCommentsDiv.style.display = 'block';
+                    }
+
+                    // Show the status section
+                    trackingSection.style.display = 'block';
+
+                } else {
+                    // Document not found
+                    alert('Tracking ID not found. Please check the ID.');
+                }
+
+            } catch (error) {
+                console.error("Error fetching document: ", error);
+                // The pop-up box has been removed by commenting out this line:
+                // alert("An error occurred while tracking status. Please ensure your Tracking ID is correct.");
+            }
+        }
+
+        // --- 4. Wire up events ---
+
+        // Expose function to global scope for the HTML onclick attribute
+        window.trackStatus = trackStatus;
+
+        // Replace the mock form submission listener
+        document.getElementById('booking-form').addEventListener('submit', submitBooking);
+
+    </script>
+</body>
+</html>
